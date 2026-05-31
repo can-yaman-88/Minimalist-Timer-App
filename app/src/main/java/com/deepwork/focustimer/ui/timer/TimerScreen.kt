@@ -1,6 +1,7 @@
 package com.deepwork.focustimer.ui.timer
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -250,10 +251,12 @@ private fun QuickMenu(
     onStop: () -> Unit,
 ) {
     val noRipple = remember { MutableInteractionSource() }
-    // Pitch-black scrim so nothing bright ever appears behind the menu.
+    // Opaque pitch-black scrim so the big timer digits behind it are fully
+    // covered (otherwise they overlap the menu buttons).
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(PitchBlack)
             .clickable(interactionSource = noRipple, indication = null, onClick = onDismiss),
         contentAlignment = Alignment.Center,
     ) {
