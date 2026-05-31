@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -33,6 +34,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.deepwork.focustimer.ui.data.DataScreen
 import com.deepwork.focustimer.ui.stats.StatsScreen
 import com.deepwork.focustimer.ui.theme.FocusTimerTheme
 import com.deepwork.focustimer.ui.theme.PitchBlack
@@ -54,7 +56,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private enum class Tab { TIMER, STATS }
+private enum class Tab { TIMER, STATS, DATA }
 
 @Composable
 private fun FocusApp() {
@@ -85,6 +87,13 @@ private fun FocusApp() {
                         label = { Text("Daily Stats") },
                         colors = sepiaNavColors(),
                     )
+                    NavigationBarItem(
+                        selected = tab == Tab.DATA.ordinal,
+                        onClick = { tab = Tab.DATA.ordinal },
+                        icon = { Icon(Icons.Filled.Storage, contentDescription = "Data") },
+                        label = { Text("Data") },
+                        colors = sepiaNavColors(),
+                    )
                 }
             }
         },
@@ -93,6 +102,7 @@ private fun FocusApp() {
             when (tab) {
                 Tab.TIMER.ordinal -> TimerScreen(timerViewModel)
                 Tab.STATS.ordinal -> StatsScreen()
+                Tab.DATA.ordinal -> DataScreen()
             }
         }
     }

@@ -10,7 +10,7 @@ object StatsExporter {
 
     fun toCsv(sessions: List<FocusSession>): String {
         val sb = StringBuilder()
-        sb.append("id,type,durationMillis,durationMinutes,completed,date,dateEpochDay,startedAtEpochMillis\n")
+        sb.append("id,type,durationMillis,durationMinutes,completed,date,dateEpochDay,startedAtEpochMillis,origin\n")
         for (s in sessions) {
             val date = LocalDate.ofEpochDay(s.dateEpochDay)
             sb.append(s.id).append(',')
@@ -20,7 +20,8 @@ object StatsExporter {
                 .append(s.completed).append(',')
                 .append(date).append(',')
                 .append(s.dateEpochDay).append(',')
-                .append(s.startedAtEpochMillis).append('\n')
+                .append(s.startedAtEpochMillis).append(',')
+                .append(s.origin.name).append('\n')
         }
         return sb.toString()
     }
@@ -37,6 +38,7 @@ object StatsExporter {
                     .put("date", LocalDate.ofEpochDay(s.dateEpochDay).toString())
                     .put("dateEpochDay", s.dateEpochDay)
                     .put("startedAtEpochMillis", s.startedAtEpochMillis)
+                    .put("origin", s.origin.name)
             )
         }
         return arr.toString(2)

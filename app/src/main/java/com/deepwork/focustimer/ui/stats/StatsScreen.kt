@@ -1,9 +1,5 @@
 package com.deepwork.focustimer.ui.stats
 
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,15 +10,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,7 +26,7 @@ import com.deepwork.focustimer.data.DailyStat
 import com.deepwork.focustimer.ui.theme.Sepia
 import com.deepwork.focustimer.ui.theme.SepiaDim
 import com.deepwork.focustimer.ui.theme.SepiaFaint
-import com.deepwork.focustimer.util.ExportFormat
+import com.deepwork.focustimer.util.StatsSummary
 import com.deepwork.focustimer.util.formatDuration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -41,34 +34,13 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun StatsScreen(vm: StatsViewModel = viewModel()) {
     val stats by vm.dailyStats.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-
-    fun toast(ok: Boolean) = Toast.makeText(
-        context, if (ok) "Exported" else "Export failed", Toast.LENGTH_SHORT
-    ).show()
-
-    // One SAF "create document" launcher per format. The picker returns a Uri
-    // the user chose; the ViewModel does all assembly + writing off-thread.
-    val csvLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument(ExportFormat.CSV.mime)
-    ) { uri -> uri?.let { vm.export(it, ExportFormat.CSV, ::toast) } }
-
-    val jsonLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument(ExportFormat.JSON.mime)
-    ) { uri -> uri?.let { vm.export(it, ExportFormat.JSON, ::toast) } }
+    val summary by vm.summary.collectAsStateWithLifecycle()
 
     Column(Modifier.fillMaxSize().padding(20.dp)) {
         Text("DAILY STATS", color = Sepia, fontSize = 22.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(16.dp))
 
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-            ExportButton("EXPORT CSV", Modifier.weight(1f)) {
-                csvLauncher.launch("focus_stats.${ExportFormat.CSV.extension}")
-            }
-            ExportButton("EXPORT JSON", Modifier.weight(1f)) {
-                jsonLauncher.launch("focus_stats.${ExportFormat.JSON.extension}")
-            }
-        }
+        SummaryCard(summary)
         Spacer(Modifier.height(20.dp))
 
         if (stats.isEmpty()) {
@@ -88,13 +60,31 @@ fun StatsScreen(vm: StatsViewModel = viewModel()) {
 }
 
 @Composable
-private fun ExportButton(label: String, modifier: Modifier, onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        border = BorderStroke(1.dp, SepiaDim),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = Sepia),
-        modifier = modifier.height(48.dp),
-    ) { Text(label, fontWeight = FontWeight.Bold) }
+private fun SummaryCard(summary: StatsSummary) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            SummaryTile("TODAY", summary.todayFocusMillis, Modifier.weight(1f))
+            SummaryTile("THIS WEEK", summary.weekFocusMillis, Modifier.weight(1f))
+            SummaryTile("THIS MONTH", summary.monthFocusMillis, Modifier.weight(1f))
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            SummaryTile("WEEKLY AVG / DAY", summary.weeklyDailyAverageMillis, Modifier.weight(1f))
+            SummaryTile("MONTHLY AVG / DAY", summary.monthlyDailyAverageMillis, Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun SummaryTile(label: String, millis: Long, modifier: Modifier = Modifier) {
+    Column(modifier) {
+        Text(label, color = SepiaDim, fontFamily = FontFamily.Monospace, fontSize = 11.sp)
+        Spacer(Modifier.height(4.dp))
+        Text(
+            formatDuration(millis),
+            color = Sepia, fontFamily = FontFamily.Monospace,
+            fontSize = 18.sp, fontWeight = FontWeight.Bold,
+        )
+    }
 }
 
 private val dateFmt = DateTimeFormatter.ofPattern("EEE, MMM d yyyy")

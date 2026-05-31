@@ -8,4 +8,10 @@ class Converters {
 
     @TypeConverter
     fun toSessionType(value: String): SessionType = SessionType.valueOf(value)
+
+    @TypeConverter
+    fun fromSessionOrigin(value: SessionOrigin): String = value.name
+
+    @TypeConverter
+    fun toSessionOrigin(value: String): SessionOrigin = SessionOrigin.valueOf(value)
 }
