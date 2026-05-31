@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Focus Timer</string>
+    <string name="notification_channel_name">Focus Timer</string>
+    <string name="notification_channel_desc">Shows the live focus/break countdown.</string>
+</resources>
