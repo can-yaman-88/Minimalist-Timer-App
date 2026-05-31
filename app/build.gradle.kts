@@ -71,4 +71,9 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.kotlinx.coroutines.android)
+
+    testImplementation(libs.junit)
+    // Real org.json implementation so JSON import/export logic is testable on the JVM
+    // (the android.jar stub throws "not mocked" in plain unit tests).
+    testImplementation(libs.json)
 }
